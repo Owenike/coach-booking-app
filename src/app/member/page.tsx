@@ -14,11 +14,28 @@ type Slot = {
   is_booked: boolean;
 };
 
+type User = {
+  id: string;
+  name: string;
+  phone: string;
+  remaining_sessions: number;
+};
+
+type BookingRecord = {
+  id: string;
+  date: string;
+  time: string;
+};
+
+type FormData = {
+  slotId: string;
+};
+
 export default function MemberPage() {
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset } = useForm<FormData>();
   const [slots, setSlots] = useState<Slot[]>([]);
-  const [user, setUser] = useState<any>(null);
-  const [records, setRecords] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [records, setRecords] = useState<BookingRecord[]>([]);
 
   useEffect(() => {
     const fetchUserAndData = async () => {
@@ -26,22 +43,27 @@ export default function MemberPage() {
       const phone = session.data.session?.user.phone;
       if (phone) {
         const { data: userData } = await supabase.from('users').select('*').eq('phone', phone).single();
-        setUser(userData);
-        const { data: booking } = await supabase.from('booking_records')
+        setUser(userData as User);
+
+        const { data: booking } = await supabase
+          .from('booking_records')
           .select('*')
           .eq('member_phone', phone)
           .order('date', { ascending: false });
-        setRecords(booking || []);
+        setRecords((booking as BookingRecord[]) || []);
       }
 
-      const { data: available } = await supabase.from('available_slots').select('*').eq('is_booked', false);
-      setSlots(available || []);
+      const { data: available } = await supabase
+        .from('available_slots')
+        .select('*')
+        .eq('is_booked', false);
+      setSlots((available as Slot[]) || []);
     };
 
     fetchUserAndData();
   }, []);
 
-  const onSubmit = async (formData: any) => {
+  const onSubmit = async (formData: FormData) => {
     const { slotId } = formData;
     const selectedSlot = slots.find((s) => s.id === slotId);
     if (!selectedSlot || !user) return;
@@ -91,7 +113,11 @@ export default function MemberPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-slate-600 mb-1">選擇預約時段</label>
-            <select {...register('slotId')} className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <select
+              {...register('slotId')}
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            >
               <option value="">請選擇</option>
               {slots.map((slot) => (
                 <option key={slot.id} value={slot.id}>
@@ -100,7 +126,10 @@ export default function MemberPage() {
               ))}
             </select>
           </div>
-          <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md font-medium"
+          >
             立即預約
           </button>
         </form>
@@ -114,7 +143,16 @@ export default function MemberPage() {
           ))}
         </ul>
 
-        <ToastContainer position="bottom-center" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+        <ToastContainer
+          position="bottom-center"
+          autoClose={2500}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </div>
     </div>
   );
