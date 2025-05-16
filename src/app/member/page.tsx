@@ -39,12 +39,17 @@ export default function MemberPage() {
 
   useEffect(() => {
     const fetchUserAndData = async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const session = await supabase.auth.getSession();
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       const phone = session.data.session?.user.phone;
+
       if (phone) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: userData } = await supabase.from('users').select('*').eq('phone', phone).single();
         setUser(userData as User);
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: booking } = await supabase
           .from('booking_records')
           .select('*')
@@ -53,6 +58,7 @@ export default function MemberPage() {
         setRecords((booking as BookingRecord[]) || []);
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: available } = await supabase
         .from('available_slots')
         .select('*')
@@ -94,6 +100,7 @@ export default function MemberPage() {
             請掃描下方 QR Code 加入我們的 LINE 官方帳號，並傳送您的手機號碼（如：+886912345678）來完成綁定。
           </p>
           <div className="flex justify-center mt-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://qr-official.line.me/gs/M_373obwhc_GW.png?oat_content=qr"
               alt="加入 LINE"

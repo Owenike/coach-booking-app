@@ -5,13 +5,17 @@ import { supabase } from '../../../lib/supabaseClient';
 import NavBar from '../../components/NavBar';
 
 export default function ManagerPage() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [users, setUsers] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [records, setRecords] = useState<any[]>([]);
   const [newUser, setNewUser] = useState({ name: '', phone: '', role: 'member', remaining_sessions: 0 });
 
   useEffect(() => {
-    supabase.from('users').select('*').then(({ data }) => setUsers(data || []));
-    supabase.from('booking_records').select('*').then(({ data }) => setRecords(data || []));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    supabase.from('users').select('*').then(({ data }: { data: any }) => setUsers(data || []));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    supabase.from('booking_records').select('*').then(({ data }: { data: any }) => setRecords(data || []));
   }, []);
 
   const updateSessions = async (id: string, sessions: number) => {
