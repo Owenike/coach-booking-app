@@ -19,6 +19,7 @@ export default function CoachPage() {
 
   useEffect(() => {
     const fetchSlots = async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data } = await supabase.from('booking_records').select('*').order('date');
       setSlots((data as BookingRecord[]) || []);
     };

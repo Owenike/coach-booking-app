@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // ✅ 最穩定的方式：跳過型別檢查
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const readable = Readable.fromWeb(req.body as any);
 
     const bodyText = await getRawBody(readable, {
