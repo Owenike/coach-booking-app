@@ -4,8 +4,15 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import NavBar from '../../components/NavBar';
 
+interface BookingRecord {
+  id: string;
+  member_name: string;
+  date: string;
+  time: string;
+}
+
 export default function CoachPage() {
-  const [slots, setSlots] = useState<any[]>([]);
+  const [slots, setSlots] = useState<BookingRecord[]>([]);
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [refresh, setRefresh] = useState(false);
@@ -13,7 +20,7 @@ export default function CoachPage() {
   useEffect(() => {
     const fetchSlots = async () => {
       const { data } = await supabase.from('booking_records').select('*').order('date');
-      setSlots(data || []);
+      setSlots((data as BookingRecord[]) || []);
     };
     fetchSlots();
   }, [refresh]);
