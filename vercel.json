@@ -1,4 +1,4 @@
 {
   "framework": "nextjs",
-  "eslint": false
+  "buildCommand": "next build --no-lint"
 }
