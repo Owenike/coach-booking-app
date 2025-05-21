@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// 👉 包裝用元件（讓 useSearchParams 運作並防止預渲染錯誤）
+// 👉 包裝元件，讓 useSearchParams 在 Suspense 裡運作
 export default function EnterPasswordPageWrapper() {
   return (
     <Suspense fallback={<div className="text-center mt-10">載入中...</div>}>
@@ -15,7 +15,7 @@ export default function EnterPasswordPageWrapper() {
   );
 }
 
-// 👉 實際登入邏輯元件
+// 👉 真正的登入元件邏輯
 function EnterPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -62,7 +62,6 @@ function EnterPasswordPage() {
       return;
     }
 
-    // 建立 session（模擬登入，不再寄 OTP）
     const { error: loginError } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false },
@@ -110,5 +109,10 @@ function EnterPasswordPage() {
   );
 }
 
-// ✅ 告訴 Next.js：這是動態頁面（不要預渲染）
+// ✅ 告訴 Next.js：不要預先靜態產生本頁
 export const dynamic = 'force-dynamic';
+
+// ✅ 確保這頁無 static params（避免 export 時報錯）
+export async function generateStaticParams() {
+  return [];
+}
