@@ -1,12 +1,22 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { supabase } from '../../../lib/supabaseClient';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function EnterPasswordPage() {
+// 👉 包裝用元件（為了讓 useSearchParams 可正常使用）
+export default function EnterPasswordPageWrapper() {
+  return (
+    <Suspense fallback={<div className="text-center mt-10">載入中...</div>}>
+      <EnterPasswordPage />
+    </Suspense>
+  );
+}
+
+// 👉 實際邏輯元件
+function EnterPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
@@ -31,7 +41,7 @@ export default function EnterPasswordPage() {
 
     setLoading(true);
 
-    // 查找密碼雜湊
+    // 取得加密密碼與角色
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('password_hash, role')
@@ -53,7 +63,7 @@ export default function EnterPasswordPage() {
       return;
     }
 
-    // 建立 session：使用 OTP 模式模擬登入（不發信）
+    // 建立 session（模擬登入，不重複發驗證信）
     const { error: loginError } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false },
@@ -68,7 +78,7 @@ export default function EnterPasswordPage() {
     toast.success('登入成功，正在導向...');
     setLoading(false);
 
-    // 根據角色導向
+    // 根據角色跳轉
     if (userData.role === 'member') router.push('/member');
     else if (userData.role === 'coach') router.push('/coach');
     else if (userData.role === 'manager') router.push('/manager');
