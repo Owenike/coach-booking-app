@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// 👉 包裝用元件（為了讓 useSearchParams 可正常使用）
+// 👉 包裝用元件（讓 useSearchParams 運作並防止預渲染錯誤）
 export default function EnterPasswordPageWrapper() {
   return (
     <Suspense fallback={<div className="text-center mt-10">載入中...</div>}>
@@ -15,7 +15,7 @@ export default function EnterPasswordPageWrapper() {
   );
 }
 
-// 👉 實際邏輯元件
+// 👉 實際登入邏輯元件
 function EnterPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -41,7 +41,6 @@ function EnterPasswordPage() {
 
     setLoading(true);
 
-    // 取得加密密碼與角色
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('password_hash, role')
@@ -63,7 +62,7 @@ function EnterPasswordPage() {
       return;
     }
 
-    // 建立 session（模擬登入，不重複發驗證信）
+    // 建立 session（模擬登入，不再寄 OTP）
     const { error: loginError } = await supabase.auth.signInWithOtp({
       email,
       options: { shouldCreateUser: false },
@@ -78,7 +77,6 @@ function EnterPasswordPage() {
     toast.success('登入成功，正在導向...');
     setLoading(false);
 
-    // 根據角色跳轉
     if (userData.role === 'member') router.push('/member');
     else if (userData.role === 'coach') router.push('/coach');
     else if (userData.role === 'manager') router.push('/manager');
@@ -111,3 +109,6 @@ function EnterPasswordPage() {
     </div>
   );
 }
+
+// ✅ 告訴 Next.js：這是動態頁面（不要預渲染）
+export const dynamic = 'force-dynamic';
