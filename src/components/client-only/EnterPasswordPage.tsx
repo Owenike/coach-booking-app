@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabaseClient';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-export default function ClientOnlyEnterPassword() {
+export default function EnterPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
